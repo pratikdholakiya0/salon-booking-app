@@ -1,0 +1,10 @@
+.sp-page { }
+.sp-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+.sp-section { margin-bottom: 16px; }
+.sp-section-title {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'Inter', sans-serif; font-size: 0.875rem; font-weight: 700;
+  color: var(--text); margin-bottom: 18px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--border-soft);
+}
+@media (max-width: 900px) { .sp-layout { grid-template-columns: 1fr; } }

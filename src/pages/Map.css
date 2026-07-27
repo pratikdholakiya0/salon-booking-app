@@ -1,0 +1,60 @@
+.distance-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ffffff;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.distance-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.distance-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.distance-input {
+    width: 110px;
+    padding: 0.5rem 0.65rem;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.distance-input:focus {
+    border-color: #2196f3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+}
+
+.distance-submit {
+    padding: 0.55rem 1.1rem;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    align-self: flex-end;
+}
+
+.distance-submit:hover {
+    background: #1976d2;
+}
+
+.distance-submit:active {
+    transform: translateY(1px);
+}

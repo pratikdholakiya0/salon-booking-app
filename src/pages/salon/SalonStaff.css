@@ -1,0 +1,21 @@
+.staff-page { }
+.staff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+.staff-card { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; gap: 12px; }
+.sc-left { display: flex; align-items: center; gap: 13px; flex: 1; min-width: 0; }
+.sc-avatar {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--gold-bg); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+}
+.sc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.sc-avatar span { font-weight: 700; font-size: 1rem; color: var(--gold); }
+
+.sc-info { min-width: 0; }
+.sc-name { font-size: 0.9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-role { font-size: 0.75rem; color: var(--gold); font-weight: 600; margin-top: 1px; }
+.sc-phone { display: flex; align-items: center; gap: 4px; font-size: 0.74rem; color: var(--text-dim); margin-top: 3px; }
+.sc-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+@media (max-width: 900px) { .staff-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 600px) { .staff-grid { grid-template-columns: 1fr; } }
