@@ -1,0 +1,260 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  SALON_OWNER
+  ADMIN
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  phone String @unique
+  password String
+  role Role @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // Email verification
+  isEmailVerified   Boolean   @default(false)
+  emailVerifyToken  String?   @unique
+  emailVerifyExpiry DateTime?
+
+  // Password reset
+  passwordResetToken  String?   @unique
+  passwordResetExpiry DateTime?
+
+  customer Customer?
+  salon    Salon?
+  notifications Notification[]
+}
+
+model Customer {
+  userId Int @id
+  profileUrl String?
+  loyaltyScore Int @default(50)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+  reviews Review[]
+  appointmentHistory AppointmentHistory[]
+}
+
+model Salon {
+  userId Int @id
+  salonName String
+  bio String?
+  profileUrl String?
+  address String
+  city String
+  pincode String?
+  closingTime String
+  openingTime String
+  slotInterval Int @default(30)
+  isActive Boolean @default(true)
+  latitude Float?
+  longitude Float?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  staff Staff[]
+  services Service[]
+  bookings Booking[]
+  reviews Review[]
+}
+
+model Staff {
+  id Int @id @default(autoincrement())
+  salonId Int
+  phone String
+  name String
+  role String
+  isActive Boolean @default(true)
+  profileUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  salon Salon @relation(fields: [salonId], references: [userId], onDelete: Cascade)
+  bookings Booking[]
+}
+
+enum WorkCategory {
+  HAIR
+  BEARD
+  MAKEUP
+  FACIAL
+  MASSAGE
+  NAILS
+  SKINCARE
+  THREADING
+  WAX
+  MEHENDI
+}
+
+model Service {
+  id Int @id @default(autoincrement())
+  salonId Int
+  name String
+  work WorkCategory
+  description String?
+  duration Int      // in minutes
+  price Decimal @db.Decimal(10, 2)
+  isActive Boolean @default(true)
+
+  salon Salon @relation(fields: [salonId], references: [userId], onDelete: Cascade)
+  bookings Booking[]
+}
+
+enum CancelledBy {
+  SALON_OWNER
+  CUSTOMER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+model Booking {
+  id Int @id @default(autoincrement())
+  customerId Int
+  salonId Int
+  serviceId Int
+  staffId Int?
+  startTime String
+  date DateTime @db.Date
+  status BookingStatus @default(PENDING)
+  cancelledBy CancelledBy?
+  cancelledAt DateTime?
+  notes String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [userId])
+  salon Salon @relation(fields: [salonId], references: [userId])
+  service Service @relation(fields: [serviceId], references: [id])
+  staff Staff? @relation(fields: [staffId], references: [id])
+  payment Payment?
+  review Review?
+  notification Notification[]
+  appointmentHistory AppointmentHistory[]
+  otp BookingOtp?
+}
+
+model AppointmentHistory {
+  id Int @id @default(autoincrement())
+  bookingId Int
+  customerId Int
+  status BookingStatus
+  changedAt DateTime @default(now())
+  note String?       // reason for cancellation etc.
+
+  booking Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [userId])
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+  ONLINE
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+  bookingId Int @unique
+  amount Decimal @db.Decimal(10, 2)
+  method PaymentMethod
+  status PaymentStatus @default(PENDING)
+  transactionId String? // external payment gateway ref
+  paidAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  bookingId Int @unique
+  customerId Int
+  salonId Int
+  rating Int      // 1 to 5
+  comment String? @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [userId])
+  salon Salon @relation(fields: [salonId], references: [userId])
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  BOOKING_REMINDER
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  REVIEW_REQUEST
+  GENERAL
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+  userId Int
+  bookingId Int?
+  type NotificationType
+  title String
+  message String @db.Text
+  isRead Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+}
+
+// Stores revoked access tokens so they are rejected even before expiry
+model BlockedToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique @db.VarChar(512) // the raw access_token JWT string
+  expiresAt DateTime                          // copied from the JWT exp claim
+  blockedAt DateTime @default(now())
+
+  @@index([expiresAt]) // for fast cleanup of expired rows
+}
+
+// OTP sent to customer when booking is confirmed — customer shows it to salon to start service
+model BookingOtp {
+  id        Int      @id @default(autoincrement())
+  bookingId Int      @unique
+  otp       String   @db.VarChar(6)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}

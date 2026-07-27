@@ -1,0 +1,21 @@
+.svc-page { }
+.svc-grid { }
+
+.svc-manage-card { padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; transition: var(--transition); }
+.svc-manage-card:hover { border-color: rgba(184,151,46,0.35); box-shadow: var(--shadow); }
+
+.smc-header { display: flex; align-items: center; justify-content: space-between; }
+.smc-work-badge {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 99px;
+  background: var(--gold-bg); color: var(--gold); border: 1px solid rgba(184,151,46,0.25);
+}
+.smc-acts { display: flex; gap: 4px; }
+.smc-name { font-size: 0.95rem; font-weight: 700; font-family: 'Inter', sans-serif; }
+.smc-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; flex: 1; }
+.smc-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 10px; border-top: 1px solid var(--border-soft); margin-top: 4px;
+}
+.smc-meta-item { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--text-muted); }
+.smc-price { font-size: 1.05rem; font-weight: 800; color: var(--gold); font-family: 'Playfair Display', serif; }
